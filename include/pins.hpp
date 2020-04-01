@@ -47,7 +47,7 @@ public:
 		// GPIOA = 0, GPIOB = 1, GPIOC = 2, etc...
 	static constexpr std::uint32_t PORT_INDEX(port_t port) noexcept
 	{
-		return static_cast<std::uint32_t>(port) >> 10;
+		return (static_cast<std::uint32_t>(port) >> 10) & 0xF;
 	}
 
 	// GPIOA = 0x01, GPIOB = 0x02, GPIOC = 0x04, etc...
@@ -259,6 +259,11 @@ public:
 	{
 		return reinterpret_cast<GPIO_TypeDef*>(port);
 	}
+
+	constexpr static port_c::port_t PIN_PORT() noexcept
+	{
+		return port;
+	}
 };
 
 /**
@@ -344,8 +349,10 @@ public:
 	static inline void SetValue(std::uint32_t mask, std::uint32_t value) noexcept
 	{
 		GPIO_TypeDef volatile* GPIOx = reinterpret_cast<GPIO_TypeDef*>(port);
-		GPIOx->ODR &= ~mask;
-		GPIOx->ODR |= (value & mask);
+		std::uint32_t tmp = GPIOx->ODR;
+		tmp &= ~mask;
+		tmp |= (value & mask);
+		GPIOx->ODR = tmp;
 	}
 
 	// Reset multiple-pin to "0"
@@ -392,5 +399,15 @@ public:
 	}
 
 };
+
+/**
+ * ALl CPU pins MUST be defined here!
+ */
+using PB15 = pin_c<port_c::port_t::B, 15>;
+using PB14 = pin_c<port_c::port_t::B, 14>;
+using PB13 = pin_c<port_c::port_t::B, 13>;
+using PB8 = pin_c<port_c::port_t::B, 8>;
+using PB9 = pin_c<port_c::port_t::B, 9>;
+
 
 #endif /* INCLUDE_PINS_HPP_ */
