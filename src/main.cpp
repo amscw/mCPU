@@ -5,17 +5,19 @@
  *      Author: moskvin
  */
 
+
 #include "trace.h"
-#include "io.hpp"
+#include "pin_usage.hpp"
+#include "io_sn74lv244a.hpp"
+
+typedef utils::TypeList<PB8, PB13, PB14, PB15> PinList;
+typedef std::make_index_sequence<static_cast<std::size_t>(utils::Length<PinList>::value)> Is;
+typedef typename MakePinWrappers<PinList, Is>::type PinWrappers;
 
 int main(int argc, char *argv[])
 {
-	CHANNEL_c channel;
-	SN74LV244A::Init();
-	SN74LV244A::Driver1Enable();
-
-	channel.Select(ch_t::CH5);
-
 	trace_printf("hello, fucking world\n");
+	Configure<PinWrappers>::AsOutput();
+
 	while(1);
 }
